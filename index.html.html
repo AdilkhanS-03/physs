@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FizMat Lab: интерактивная цифровая среда по физике 7–11</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#16302b;--mute:#5d726d;--line:#cfdcd6;--acc:#0f6b5c;--accink:#fff;--ok:#1d7a3c;--okbg:#dcf1e2;--bad:#b3261e;--badbg:#f8dedb;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101b18;--card:#182723;--ink:#e3eeea;--mute:#98b0a9;--line:#2c433d;--acc:#4fc2a8;--accink:#06201a;--ok:#7fd69a;--okbg:#1b3a27;--bad:#ff9d94;--badbg:#42201d}}
+:root[data-theme="dark"]{--bg:#101b18;--card:#182723;--ink:#e3eeea;--mute:#98b0a9;--line:#2c433d;--acc:#4fc2a8;--accink:#06201a;--ok:#7fd69a;--okbg:#1b3a27;--bad:#ff9d94;--badbg:#42201d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Georgia,"Times New Roman",serif}
+main{max-width:820px;margin:0 auto;padding:16px}
+h1{font-size:26px;margin:4px 0 12px;text-align:center}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+button,select,input{font:inherit;color:inherit}
+.tab{white-space:nowrap;padding:8px 14px;border:1px solid var(--line);background:var(--card);border-radius:20px;cursor:pointer}
+.tab[aria-selected=true]{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.filters{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.filters select,.filters input{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+@media(max-width:680px){.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:span 2}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.f{font-family:"Cambria Math","Times New Roman",serif;font-size:22px;color:var(--acc);font-weight:bold;margin:6px 0;letter-spacing:0.5px}
+.item{padding:12px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}
+.item small,.mute{color:var(--mute)}
+.vars{margin:4px 0 0;padding:0;list-style:none;color:var(--mute);font-size:14px}
+.opts{display:grid;gap:8px;margin-top:12px}
+.opt{text-align:left;padding:12px;border:1px solid var(--line);background:var(--bg);border-radius:8px;cursor:pointer}
+.opt.ok{background:var(--okbg);border-color:var(--ok)}.opt.bad{background:var(--badbg);border-color:var(--bad)}
+.btn{padding:10px 18px;border:0;border-radius:8px;background:var(--acc);color:var(--accink);cursor:pointer;margin-top:12px;display:inline-block;text-decoration:none}
+.btn-sm{padding:4px 10px;font-size:13px;margin-top:6px}
+.ans{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);width:140px}
+.score{display:flex;justify-content:space-between;color:var(--mute);margin-bottom:10px;font-size:14px}
+.card{min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;gap:6px}
+.msg{margin-top:10px;font-weight:bold}.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.phet-container{position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:8px;border:1px solid var(--line)}
+.phet-container iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.phet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:12px}
+.phet-card{padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;text-align:center}
+.phet-card:hover{border-color:var(--acc)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+html,body{overflow-x:hidden;max-width:100%}img,svg,canvas,iframe{max-width:100%}
+.sub{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.pill{padding:6px 12px;border:1px solid var(--line);background:var(--bg);border-radius:16px;cursor:pointer;font-size:14px}
+.pill[aria-selected=true]{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.cv{width:100%;display:block;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-top:10px}
+.ctl label{display:flex;justify-content:space-between;font-size:14px;margin-top:8px}.ctl input[type=range]{width:100%;accent-color:var(--acc)}
+.ro{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}
+.ro div{border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg);font-size:13px}.ro b{display:block;font-size:17px;color:var(--acc)}
+.box{border-left:4px solid var(--acc);background:var(--bg);padding:8px 12px;border-radius:0 8px 8px 0;margin:10px 0}
+.t{width:100%;border-collapse:collapse;font-size:14px;display:block;overflow-x:auto}.t th,.t td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+.qc{border:1px solid var(--line);border-radius:12px;padding:12px;margin:12px 0;background:var(--card)}
+.qc label{display:block;padding:6px 8px;margin-top:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer}
+.qc select,.qc textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-top:6px}
+.sol{font-size:15px}.sol ol,.sol ul{margin:4px 0;padding-left:22px}
+:root{--glass:rgba(255,255,255,.72);--sh:0 8px 28px rgba(15,60,50,.10)}
+:root[data-theme="dark"]{--glass:rgba(24,39,35,.68);--sh:0 8px 28px rgba(0,0,0,.4)}
+body{font:16px/1.6 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:radial-gradient(900px 420px at 8% -8%,color-mix(in srgb,var(--acc) 22%,transparent),transparent),radial-gradient(700px 380px at 100% 0,color-mix(in srgb,#5b7cfa 14%,transparent),transparent),var(--bg);background-attachment:fixed;transition:background .3s,color .3s}
+.hero{text-align:center;padding:10px 0 2px}.hero h1{font-size:clamp(26px,6vw,38px);margin:0;letter-spacing:.5px;background:linear-gradient(90deg,var(--acc),#5b7cfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:2px 0 8px;color:var(--mute);font-size:15px}
+.panel,.qc,.phet-card,.ro div,.box{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.panel{background:var(--glass);box-shadow:var(--sh);border-radius:16px}.qc{background:var(--glass);box-shadow:var(--sh)}
+.tab,.pill,.btn{transition:transform .15s,box-shadow .15s}.tab:hover,.pill:hover,.btn:hover{transform:translateY(-1px);box-shadow:var(--sh)}
+.btn{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,#5b7cfa))}
+.cta{margin-top:16px;padding:14px;border-radius:16px;border:2px solid var(--acc);background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 14%,transparent),transparent)}
+.cta .btn{font-weight:bold}.mini-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.mini-row input{flex:1;min-width:160px;width:auto!important}
+.f{font-family:"Cambria Math","Cambria","Times New Roman",serif}
+@media(max-width:480px){main{padding:10px}.panel{padding:12px}}
+</style>
+</head>
+<body>
+<main>
+<header class="hero"><h1>FizMat Lab</h1><p>Интерактивная цифровая среда по физике · 7–11 классы</p></header><div style="text-align:center;margin-bottom:8px"><button class="pill" id="th" aria-label="Сменить тему">🌓 Тема</button></div>
+<div class="tabs" role="tablist" id="tabs"></div>
+<div class="filters" id="filters"></div>
+<div id="view"></div>
+</main>
+<script>
+const PHET_LABS = [
+  { title: "Конструктор цепей (Circuit Simulator)", sec: "Ток и цепи", url: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_ru.html" },
+  { title: "Закон Ома", sec: "Ток и цепи", url: "https://phet.colorado.edu/sims/html/ohms-law/latest/ohms-law_ru.html" },
+  { title: "Законы Ньютона и Силы", sec: "Законы Ньютона", url: "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_ru.html" },
+  { title: "Закон Гука (Пружины)", sec: "Силы", url: "https://phet.colorado.edu/sims/html/hookes-law/latest/hookes-law_ru.html" },
+  { title: "Энергия скейт-парка", sec: "Работа и энергия", url: "https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_ru.html" },
+  { title: "Давление и Плотность", sec: "Давление", url: "https://phet.colorado.edu/sims/html/under-pressure/latest/under-pressure_ru.html" },
+  { title: "Закон Кулона", sec: "Электрическое поле", url: "https://phet.colorado.edu/sims/html/coulombs-law/latest/coulombs-law_ru.html" },
+  { title: "Геометрическая оптика", sec: "Отражение и линзы", url: "https://phet.colorado.edu/sims/html/geometric-optics/latest/geometric-optics_ru.html" },
+  { title: "Преломление света", sec: "Геометрическая и волновая оптика", url: "https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_ru.html" },
+  { title: "Состояние вещества (Газы)", sec: "Основы МКТ", url: "https://phet.colorado.edu/sims/html/states-of-matter-basics/latest/states-of-matter-basics_ru.html" },
+  { title: "Фотоэффект", sec: "Кванты и атом", url: "https://phet.colorado.edu/sims/html/photoelectric/latest/photoelectric_ru.html" }
+];
+
+const RAW=`7 класс|Механика|Движение|Скорость|v = s / t|v:скорость:м/с;s:путь:м;t:время:с
+7 класс|Механика|Движение|Средняя скорость|v<sub>ср</sub> = s<sub>общ</sub> / t<sub>общ</sub>|v_{ср}:средняя скорость:м/с;s:весь путь:м;t:всё время:с
+7 класс|Механика|Масса и плотность|Плотность|ρ = m / V|ρ:плотность:кг/м³;m:масса:кг;V:объём:м³
+7 класс|Механика|Силы|Сила тяжести|F = mg|F:сила тяжести:Н;m:масса:кг;g:ускорение свободного падения:м/с²
+7 класс|Механика|Силы|Закон Гука|F = k·Δx|F:сила упругости:Н;k:жёсткость:Н/м;Δx:удлинение:м
+7 класс|Механика|Давление|Давление твёрдого тела|p = F / S|p:давление:Па;F:сила:Н;S:площадь:м²
+7 класс|Механика|Давление|Давление жидкости|p = ρgh|p:давление:Па;ρ:плотность жидкости:кг/м³;h:глубина:м
+7 класс|Механика|Давление|Сила Архимеда|F<sub>a</sub> = ρgV|F_a:выталкивающая сила:Н;ρ:плотность жидкости:кг/м³;V:объём погружённой части:м³
+7 класс|Механика|Давление|Гидравлический пресс|F<sub>2</sub> / F<sub>1</sub> = S<sub>2</sub> / S<sub>1</sub>|F:сила:Н;S:площадь поршня:м²
+7 класс|Механика|Работа и энергия|Механическая работа|A = Fs|A:работа:Дж;F:сила:Н;s:путь:м
+7 класс|Механика|Работа и энергия|Мощность|N = A / t|N:мощность:Вт;A:работа:Дж;t:время:с
+7 класс|Механика|Работа и энергия|Правило рычага|F<sub>1</sub>l<sub>1</sub> = F<sub>2</sub>l<sub>2</sub>|F:сила:Н;l:плечо силы:м
+7 класс|Механика|Работа и энергия|Момент силы|M = Fl|M:момент силы:Н·м;F:сила:Н;l:плечо:м
+7 класс|Механика|Работа и энергия|КПД механизма|η = (A<sub>п</sub> / A<sub>з</sub>) · 100%|η:КПД:%;A_п:полезная работа:Дж;A_з:затраченная работа:Дж
+7 класс|Механика|Работа и энергия|Кинетическая энергия|E<sub>k</sub> = (m·v²) / 2|E_k:кинетическая энергия:Дж;m:масса:кг;v:скорость:м/с
+7 класс|Механика|Работа и энергия|Потенциальная энергия|E<sub>p</sub> = mgh|E_p:потенциальная энергия:Дж;h:высота:м
+8 класс|Тепловые явления|Нагревание и плавление|Нагревание и охлаждение|Q = c·m·Δt|Q:количество теплоты:Дж;c:удельная теплоёмкость:Дж/(кг·°C);m:масса:кг;Δt:изменение температуры:°C
+8 класс|Тепловые явления|Нагревание и плавление|Сгорание топлива|Q = qm|Q:количество теплоты:Дж;q:удельная теплота сгорания:Дж/кг;m:масса:кг
+8 класс|Тепловые явления|Нагревание и плавление|Плавление|Q = λm|Q:количество теплоты:Дж;λ:удельная теплота плавления:Дж/кг;m:масса:кг
+8 класс|Тепловые явления|Нагревание и плавление|Парообразование|Q = Lm|Q:количество теплоты:Дж;L:удельная теплота парообразования:Дж/кг;m:масса:кг
+8 класс|Тепловые явления|Нагревание и плавление|КПД теплового двигателя|η = (A<sub>п</sub> / Q<sub>н</sub>) · 100%|η:КПД:%;A_п:полезная работа:Дж;Q_н:теплота нагревателя:Дж
+8 класс|Тепловые явления|Нагревание и плавление|Относительная влажность|φ = (p / p<sub>n</sub>) · 100%|φ:влажность:%;p:давление пара:Па;p_n:давление насыщенного пара:Па
+8 класс|Электрические явления|Ток и цепи|Сила тока|I = q / t|I:сила тока:А;q:заряд:Кл;t:время:с
+8 класс|Электрические явления|Ток и цепи|Напряжение|U = A / q|U:напряжение:В;A:работа тока:Дж;q:заряд:Кл
+8 класс|Электрические явления|Ток и цепи|Закон Ома для участка цепи|I = U / R|I:сила тока:А;U:напряжение:В;R:сопротивление:Ом
+8 класс|Электрические явления|Ток и цепи|Сопротивление проводника|R = (ρ·l) / S|R:сопротивление:Ом;ρ:удельное сопротивление:Ом·мм²/м;l:длина:м;S:площадь сечения:мм²
+8 класс|Электрические явления|Соединения проводников|Последовательное соединение|R = R<sub>1</sub> + R<sub>2</sub>|R:общее сопротивление:Ом;I:сила тока:А
+8 класс|Электрические явления|Соединения проводников|Параллельное соединение|1/R = 1/R<sub>1</sub> + 1/R<sub>2</sub>|R:общее сопротивление:Ом;U:напряжение:В
+8 класс|Электрические явления|Работа и мощность тока|Работа тока|A = UIt|A:работа:Дж;U:напряжение:В;I:сила тока:А;t:время:с
+8 класс|Электрические явления|Работа и мощность тока|Мощность тока|P = UI|P:мощность:Вт;U:напряжение:В;I:сила тока:А
+8 класс|Электрические явления|Работа и мощность тока|Закон Джоуля — Ленца|Q = I²Rt|Q:количество теплоты:Дж;I:сила тока:А;R:сопротивление:Ом;t:время:с
+8 класс|Световые явления|Отражение и линзы|Закон отражения|α = β|α:угол падения:°;β:угол отражения:°
+8 класс|Световые явления|Отражение и линзы|Оптическая сила линзы|D = 1 / F|D:оптическая сила:дптр;F:фокусное расстояние:м
+9 класс|Кинематика и динамика|Равноускоренное движение|Ускорение|a = (v - v<sub>0</sub>) / t|a:ускорение:м/с²;v:конечная скорость:м/с;v_0:начальная скорость:м/с;t:время:с
+9 класс|Кинематика и динамика|Равноускоренное движение|Скорость при равноускоренном движении|v = v<sub>0</sub> + at|v:скорость:м/с;a:ускорение:м/с²;t:время:с
+9 класс|Кинематика и динамика|Равноускоренное движение|Перемещение|s = v<sub>0</sub>t + (a·t²) / 2|s:перемещение:м;v_0:начальная скорость:м/с;a:ускорение:м/с²
+9 класс|Кинематика и динамика|Равноускоренное движение|Перемещение без времени|s = (v² - v<sub>0</sub>²) / (2a)|s:перемещение:м;v:скорость:м/с;a:ускорение:м/с²
+9 класс|Кинематика и динамика|Движение по окружности|Центростремительное ускорение|a<sub>c</sub> = v² / R|a_c:центростремительное ускорение:м/с²;v:скорость:м/с;R:радиус:м
+9 класс|Кинематика и динамика|Движение по окружности|Период и частота|T = 1 / ν|T:период:с;ν:частота:Гц
+9 класс|Кинематика и динамика|Движение по окружности|Скорость при вращении|v = (2πR) / T|v:линейная скорость:м/с;R:радиус:м;T:период:с
+9 класс|Кинематика и динамика|Законы Ньютона|Второй закон Ньютона|F = ma|F:сила:Н;m:масса:кг;a:ускорение:м/с²
+9 класс|Кинематика и динамика|Законы Ньютона|Сила трения|F<sub>тр</sub> = μN|F_тр:сила трения:Н;μ:коэффициент трения:безразм.;N:сила реакции опоры:Н
+9 класс|Кинематика и динамика|Законы Ньютона|Закон всемирного тяготения|F = G · (m<sub>1</sub>m<sub>2</sub> / r²)|F:сила тяготения:Н;G:гравитационная постоянная:Н·м²/кг²;r:расстояние:м
+9 класс|Кинематика и динамика|Законы Ньютона|Ускорение свободного падения|g = (GM) / R²|g:ускорение свободного падения:м/с²;M:масса планеты:кг;R:радиус планеты:м
+9 класс|Кинематика и динамика|Импульс|Импульс тела|p = mv|p:импульс:кг·м/с;m:масса:кг;v:скорость:м/с
+9 класс|Кинематика и динамика|Импульс|Закон сохранения импульса|m<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = m<sub>1</sub>v<sub>1</sub>' + m<sub>2</sub>v<sub>2</sub>'|p:импульс:кг·м/с;v:скорость:м/с
+9 класс|Колебания и волны|Механические колебания и волны|Период пружинного маятника|T = 2π√(m / k)|T:период:с;m:масса:кг;k:жёсткость:Н/м
+9 класс|Колебания и волны|Механические колебания и волны|Период математического маятника|T = 2π√(l / g)|T:период:с;l:длина нити:м;g:ускорение свободного падения:м/с²
+9 класс|Колебания и волны|Механические колебания и волны|Длина волны|λ = vT = v / ν|λ:длина волны:м;v:скорость волны:м/с;ν:частота:Гц
+9 класс|Электромагнитное поле|Магнитное поле и индукция|Магнитный поток|Φ = BS·cosα|Φ:магнитный поток:Вб;B:индукция:Тл;S:площадь:м²
+9 класс|Электромагнитное поле|Магнитное поле и индукция|Сила Ампера|F = BIl·sinα|F:сила Ампера:Н;B:индукция:Тл;I:сила тока:А;l:длина проводника:м
+9 класс|Строение атома и ядра|Атомное ядро|Закон радиоактивного распада|N = N<sub>0</sub> · 2<sup>-t/T</sup>|N:число ядер:шт.;T:период полураспада:с
+9 класс|Строение атома и ядра|Атомное ядро|Энергия связи ядра|E = Δm · c²|E:энергия:Дж;Δm:дефект масс:кг;c:скорость света:м/с
+10 класс|Механика|Законы сохранения|Импульс силы|Ft = Δp|F:сила:Н;t:время:с;Δp:изменение импульса:кг·м/с
+10 класс|Механика|Законы сохранения|Теорема о кинетической энергии|A = ΔE<sub>k</sub>|A:работа:Дж;ΔE_k:изменение кинетической энергии:Дж
+10 класс|Механика|Законы сохранения|Энергия пружины|E<sub>p</sub> = (k·x²) / 2|E_p:энергия упругой деформации:Дж;k:жёсткость:Н/м;x:деформация:м
+10 класс|Молекулярная физика и термодинамика|Основы МКТ|Количество вещества|ν = m / M = N / N<sub>a</sub>|ν:количество вещества:моль;m:масса:кг;M:молярная масса:кг/моль
+10 класс|Молекулярная физика и термодинамика|Основы МКТ|Основное уравнение МКТ|p = (1/3) · n · m<sub>0</sub> · v²|p:давление:Па;n:концентрация:м⁻³;m_0:масса молекулы:кг
+10 класс|Молекулярная физика и термодинамика|Основы МКТ|Энергия молекул|E<sub>k</sub> = (3/2) · kT|E_k:средняя кинетическая энергия:Дж;k:постоянная Больцмана:Дж/К;T:температура:К
+10 класс|Молекулярная физика и термодинамика|Газовые законы|Уравнение Менделеева — Клапейрона|pV = νRT|p:давление:Па;V:объём:м³;ν:количество вещества:моль;T:температура:К
+10 класс|Молекулярная физика и термодинамика|Газовые законы|Объединённый газовый закон|(p<sub>1</sub>V<sub>1</sub>) / T<sub>1</sub> = (p<sub>2</sub>V<sub>2</sub>) / T<sub>2</sub>|p:давление:Па;V:объём:м³;T:температура:К
+10 класс|Молекулярная физика и термодинамика|Газовые законы|Изотермический процесс|pV = const|p:давление:Па;V:объём:м³
+10 класс|Молекулярная физика и термодинамика|Термодинамика|Внутренняя энергия идеального газа|U = (3/2) · νRT|U:внутренняя энергия:Дж;ν:количество вещества:моль;R:газовая постоянная:Дж/(моль·К)
+10 класс|Молекулярная физика и термодинамика|Термодинамика|Работа газа|A = p·ΔV|A:работа газа:Дж;p:давление:Па;ΔV:изменение объёма:м³
+10 класс|Молекулярная физика и термодинамика|Термодинамика|Первый закон термодинамики|ΔU = Q + A|ΔU:изменение внутренней энергии:Дж;Q:теплота:Дж;A:работа внешних сил:Дж
+10 класс|Молекулярная физика и термодинамика|Термодинамика|КПД идеального двигателя|η = (T<sub>1</sub> - T<sub>2</sub>) / T<sub>1</sub>|η:КПД:безразм.;T_1:температура нагревателя:К;T_2:температура холодильника:К
+10 класс|Электростатика|Электрическое поле|Закон Кулона|F = k · (q<sub>1</sub>q<sub>2</sub> / r²)|F:сила:Н;k:коэффициент Кулона:Н·м²/Кл²;q:заряд:Кл;r:расстояние:м
+10 класс|Электростатика|Электрическое поле|Напряжённость поля|E = F / q|E:напряжённость:В/м;F:сила:Н;q:заряд:Кл
+10 класс|Электростатика|Электрическое поле|Потенциал|φ = W<sub>p</sub> / q|φ:потенциал:В;W_p:потенциальная энергия:Дж;q:заряд:Кл
+10 класс|Электростатика|Электрическое поле|Напряжение в однородном поле|U = Ed|U:напряжение:В;E:напряжённость:В/м;d:расстояние:м
+10 класс|Электростатика|Конденсаторы|Электроёмкость|C = q / U|C:ёмкость:Ф;q:заряд:Кл;U:напряжение:В
+10 класс|Электростатика|Конденсаторы|Энергия конденсатора|W = (C·U²) / 2|W:энергия:Дж;C:ёмкость:Ф;U:напряжение:В
+10 класс|Постоянный ток|Законы постоянного тока|Закон Ома для полной цепи|I = ε / (R + r)|I:сила тока:А;ε:ЭДС:В;R:внешнее сопротивление:Ом;r:внутреннее сопротивление:Ом
+10 класс|Постоянный ток|Законы постоянного тока|Закон электролиза Фарадея|m = kIt|m:масса вещества:кг;k:электрохимический эквивалент:кг/Кл;I:сила тока:А;t:время:с
+11 класс|Электромагнетизм|Магнитное поле|Индукция магнитного поля|B = F<sub>max</sub> / (I·l)|B:индукция:Тл;F:сила:Н;I:сила тока:А;l:длина:м
+11 класс|Электромагнетизм|Магнитное поле|Сила Лоренца|F = qvB·sinα|F:сила Лоренца:Н;q:заряд:Кл;v:скорость:м/с;B:индукция:Тл
+11 класс|Электромагнетизм|Электромагнитная индукция|Закон Фарадея|ε = -ΔΦ / Δt|ε:ЭДС индукции:В;ΔΦ:изменение потока:Вб;Δt:время:с
+11 класс|Электромагнетизм|Электромагнитная индукция|ЭДС в движущемся проводнике|ε = Blv·sinα|ε:ЭДС:В;B:индукция:Тл;l:длина:м;v:скорость:м/с
+11 класс|Электромагнетизм|Электромагнитная индукция|Самоиндукция|ε = -L · (ΔI / Δt)|ε:ЭДС самоиндукции:В;L:индуктивность:Гн;ΔI:изменение тока:А
+11 класс|Электромагнетизм|Электромагнитная индукция|Энергия катушки|W = (L·I²) / 2|W:энергия:Дж;L:индуктивность:Гн;I:сила тока:А
+11 класс|Электромагнитные колебания|Колебательный контур и переменный ток|Формула Томсона|T = 2π√(L·C)|T:период:с;L:индуктивность:Гн;C:ёмкость:Ф
+11 класс|Электромагнитные колебания|Колебательный контур и переменный ток|Циклическая частота|ω = 2πν|ω:циклическая частота:рад/с;ν:частота:Гц
+11 класс|Электромагнитные колебания|Колебательный контур и переменный ток|Действующее напряжение|U = U<sub>m</sub> / √2|U:действующее напряжение:В;U_m:амплитуда:В
+11 класс|Электромагнитные колебания|Колебательный контур и переменный ток|Трансформатор|U<sub>1</sub> / U<sub>2</sub> = n<sub>1</sub> / n<sub>2</sub> = k|U:напряжение:В;n:число витков:шт.
+11 класс|Оптика|Геометрическая и волновая оптика|Показатель преломления|n = c / v = sinα / sinβ|n:показатель преломления:безразм.;c:скорость света:м/с;v:скорость в среде:м/с
+11 класс|Оптика|Геометрическая и волновая оптика|Формула тонкой линзы|1/d + 1/f = 1/F|d:расстояние до предмета:м;f:расстояние до изображения:м;F:фокусное расстояние:м
+11 класс|Оптика|Геометрическая и волновая оптика|Увеличение линзы|Γ = f / d|Γ:увеличение:безразм.;f:расстояние до изображения:м;d:расстояние до предмета:м
+11 класс|Оптика|Геометрическая и волновая оптика|Дифракционная решётка|d·sinφ = kλ|d:период решётки:м;λ:длина волны:м;k:порядок максимума:безразм.
+11 класс|Квантовая и атомная физика|Теория относительности|Взаимосвязь массы и энергии|E = mc²|E:энергия:Дж;m:масса:кг;c:скорость света:м/с
+11 класс|Квантовая и атомная физика|Кванты и атом|Энергия фотона|E = hν|E:энергия:Дж;h:постоянная Планка:Дж·с;ν:частота:Гц
+11 класс|Квантовая и атомная физика|Кванты и атом|Уравнение Эйнштейна для фотоэффекта|hν = A<sub>вых</sub> + E<sub>k</sub>|A_вых:работа выхода:Дж;E_k:кинетическая энергия электрона:Дж;ν:частота:Гц
+11 класс|Квантовая и атомная физика|Кванты и атом|Импульс фотона|p = h / λ|p:импульс:кг·м/с;h:постоянная Планка:Дж·с;λ:длина волны:м`;
+
+const D=RAW.split("\n").map(l=>{const a=l.split("|");return [a[0],a[1],a[2],a[3],a[4],a[5].split(";").map(v=>v.split(":"))]});
+const T={
+"Движение":"Механическое движение — изменение положения тела относительно других тел.",
+"Масса и плотность":"Масса — мера инертности тела, измеряется в килограммах. Плотность — масса единицы объёма вещества.",
+"Силы":"Сила — мера действия одного тела на другое, единица — ньютон (Н). Сила тяжести, упругости и трения.",
+"Давление":"Давление — сила, действующая перпендикулярно поверхности, на единицу площади; единица — паскаль.",
+"Работа и энергия":"Работа совершается, когда сила перемещает тело. Мощность — работа за единицу времени.",
+"Нагревание и плавление":"Внутренняя энергия — сумма кинетической энергии молекул и энергии их взаимодействия.",
+"Ток и цепи":"Электрический ток — упорядоченное движение заряженных частиц. Закон Ома: I = U / R.",
+"Соединения проводников":"Последовательное соединение: ток одинаков. Параллельное: напряжение одинаково.",
+"Работа и мощность тока":"Работа тока A = UIt, мощность P = UI. Нагревание описывает закон Джоуля — Ленца.",
+"Отражение и линзы":"Закон отражения: угол отражения равен углу падения. Преломление — изменение направления света.",
+"Равноускоренное движение":"Ускорение — изменение скорости за единицу времени. Движение с постоянным ускорением.",
+"Движение по окружности":"Скорость постоянна по модулю, но меняется по направлению; ускорение направлено к центру.",
+"Законы Ньютона":"Законы механики, определяющие движение тел под действием внешних сил.",
+"Импульс":"Импульс — произведение массы на скорость. В замкнутой системе суммарный импульс сохраняется.",
+"Механические колебания и волны":"Колебания — повторяющееся движение; характеристики: амплитуда, период, частота.",
+"Законы сохранения":"Полная механическая энергия и импульс сохраняются в замкнутых системах.",
+"Основы МКТ":"Вещество состоит из частиц, которые беспорядочно движутся и взаимодействуют.",
+"Газовые законы":"Состояние газа описывают p, V, T. Изопроцессы: изотермический, изобарный, изохорный.",
+"Термодинамика":"Первый закон: изменение внутренней энергии равно сумме теплоты и работы внешних сил.",
+"Электрическое поле":"Одноимённые заряды отталкиваются, разноимённые притягиваются (закон Кулона).",
+"Конденсаторы":"Конденсатор накапливает заряд и энергию электрического поля.",
+"Законы постоянного тока":"ЭДС — работа сторонних сил. Закон Ома для полной цепи.",
+"Оптика":"Волновые явления: интерференция, дифракция, поляризация и преломление света.",
+"Кванты и атом":"Свет излучается и поглощается квантами (фотонами) с энергией E = hν."
+};
+
+const CONV=[["км/ч","м/с",1/3.6],["м/с","км/ч",3.6],["мин","с",60],["ч","с",3600],["см","м",.01],["мм","м",.001],["км","м",1000],["г","кг",.001],["т","кг",1000],["кВт","Вт",1000],["МВт","Вт",1e6],["кДж","Дж",1000],["см²","м²",1e-4],["см³","м³",1e-6],["л","м³",.001],["кПа","Па",1000],["мА","А",.001],["мкФ","Ф",1e-6],["г/см³","кг/м³",1000],["кВт·ч","Дж",3.6e6],["°C","К",type=> "temp_ck"],["К","°C",type=> "temp_kc"]];
+const VALS=[2,5,10,15,36,72,90,250,0.5,1.5];
+
+const $=id=>document.getElementById(id);
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+
+const TABS=[["ref","Главная / Справочник"],["theory","Теория"],["phet","Эксперименты PhET"],["circuit","Circuit Simulator"],["cards","Карточки"],["qf","Тест: формулы"],["qu","Тест: единицы"],["conv","Перевод единиц"],["ba","🎯 ЦОР: Баллистика"]];
+let tab="ref",sel={t:"",c:"",s:"",search:""},flip=false,cur=null,activePhet=null;
+
+let score = {ok: 0, n: 0};
+try {
+  const saved = localStorage.getItem('phys_score');
+  if (saved) score = JSON.parse(saved);
+} catch(e) {}
+
+function saveScore(){
+  try {
+    localStorage.setItem('phys_score', JSON.stringify(score));
+  } catch(e) {}
+}
+
+function pool(){
+  return D.filter(f=>{
+    const mClass = !sel.t || f[0]===sel.t;
+    const mChapter = !sel.c || f[1]===sel.c;
+    const mSection = !sel.s || f[2]===sel.s;
+    const mSearch = !sel.search || (f[3]+f[4]+f[1]+f[2]).toLowerCase().includes(sel.search.toLowerCase());
+    return mClass && mChapter && mSection && mSearch;
+  });
+}
+function uniq(a){return [...new Set(a)]}
+
+function renderTabs(){
+ $("tabs").innerHTML=TABS.map(([k,n])=>`<button class="tab" role="tab" aria-selected="${k===tab}" data-k="${k}">${n}</button>`).join("");
+ $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  tab=b.dataset.k;flip=false;cur=null;renderTabs();renderFilters();show();
+ });
+}
+
+function renderFilters(){
+ if(tab==="conv"||tab==="phet"||tab==="circuit"||tab==="ba"){$("filters").innerHTML="";return}
+ const cs=uniq(D.filter(f=>!sel.t||f[0]===sel.t).map(f=>f[1]));
+ const ss=uniq(D.filter(f=>(!sel.t||f[0]===sel.t)&&(!sel.c||f[1]===sel.c)).map(f=>f[2]));
+ const mk=(id,label,opts,v)=>`<select id="${id}"><option value="">${label}: все</option>${opts.map(o=>`<option ${o===v?"selected":""}>${o}</option>`).join("")}</select>`;
+ $("filters").innerHTML=mk("ft","Класс",uniq(D.map(f=>f[0])),sel.t)+mk("fc","Глава",cs,sel.c)+mk("fs","Раздел",ss,sel.s)+
+ `<input id="fsearch" placeholder="Поиск формулы..." value="${sel.search||""}">`;
+ 
+ $("ft").onchange=e=>{sel={t:e.target.value,c:"",s:"",search:sel.search};change()};
+ $("fc").onchange=e=>{sel.c=e.target.value;sel.s="";change()};
+ $("fs").onchange=e=>{sel.s=e.target.value;change()};
+ $("fsearch").oninput=e=>{sel.search=e.target.value;show()};
+}
+
+function change(){cur=null;flip=false;renderFilters();show()}
+function show(){
+  ({ref,theory,phet,circuit:circuitView,cards,qf:quizF,qu:quizU,conv,ba:ball})[tab]();
+}
+
+function getPhetBtn(secName){
+  const lab = PHET_LABS.find(l=>l.sec === secName);
+  if(lab){
+    return `<button class="btn btn-sm" onclick="openPhetSim('${lab.url}')">🧪 Открыть эксперимент PhET</button>`;
+  }
+  return '';
+}
+
+function openPhetSim(url){
+  activePhet = url;
+  tab = "phet";
+  renderTabs();
+  renderFilters();
+  show();
+}
+
+function ref(){
+ const p=pool(),out=[];let last="";
+ if(!p.length){$("view").innerHTML='<div class="panel">Ничего не найдено</div>';return}
+ p.forEach(f=>{
+  const h=f[0]+" · "+f[1]+" — "+f[2];
+  if(h!==last){out.push(`<h3 style="margin:16px 0 0">${h}</h3>`);last=h}
+  const phetBtn = getPhetBtn(f[2]);
+  out.push(`<div class="item"><div><b>${f[3]}</b></div><div class="f">${f[4]}</div><ul class="vars">${f[5].map(v=>`<li>${v[0]} — ${v[1]},${v[2]}</li>`).join("")}</ul>${phetBtn}</div>`);
+ });
+ $("view").innerHTML=`<div class="panel">${out.join("")}</div>`;
+}
+
+function theory(){
+ const seen=new Set(),o=[];
+ pool().forEach(f=>{
+  const k=f[2];if(seen.has(k))return;seen.add(k);
+  const phetBtn = getPhetBtn(k);
+  o.push(`<div class="item"><h3 style="margin:0 0 4px">${f[0]} · ${f[1]} — ${k}</h3><p style="margin:0">${T[k]||"Раздел теоретического материала"}</p>${phetBtn}</div>`);
+ });
+ $("view").innerHTML=`<div class="panel">${o.length?o.join(""): "Ничего не найдено"}</div>`;
+}
+
+function phet(){
+ if(activePhet){
+  $("view").innerHTML=`<div class="panel">
+   <button class="btn btn-sm" onclick="activePhet=null;phet()" style="margin-bottom:12px">← К списку экспериментов</button>
+   <div class="phet-container">
+     <iframe src="${activePhet}" allowfullscreen></iframe>
+   </div>
+  </div>`;
+  return;
+ }
+ const cards = PHET_LABS.map(l=>`
+  <div class="phet-card" onclick="openPhetSim('${l.url}')">
+    <div style="font-size:32px">🧪</div>
+    <b>${l.title}</b>
+    <div class="mute" style="font-size:12px;margin-top:4px">${l.sec}</div>
+  </div>
+ `).join("");
+ $("view").innerHTML=`<div class="panel">
+  <h3 style="margin-top:0">Интерактивные виртуальные лаборатории (PhET Colorado)</h3>
+  <p class="mute">Выберите эксперимент для проведения интерактивного исследования законов физики:</p>
+  <div class="phet-grid">${cards}</div>
+ </div>`;
+}
+
+function circuitView(){
+  $("view").innerHTML=`<div class="panel">
+   <h3 style="margin-top:0">Конструктор электрических цепей (Circuit Simulator DC)</h3>
+   <p class="mute" style="margin-bottom:12px">Интерактивная лаборатория для сборки цепей, измерения силы тока и напряжения:</p>
+   <div class="phet-container">
+     <iframe src="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_ru.html" allowfullscreen></iframe>
+   </div>
+  </div>`;
+}
+
+function cards(){
+ const p=pool();
+ if(!p.length){return $("view").innerHTML='<div class="panel">Нет формул для показа. Измените фильтры.</div>'}
+ if(!cur||!p.includes(cur)){cur=rnd(p);flip=false}
+ const phetBtn = getPhetBtn(cur[2]);
+ $("view").innerHTML=`<div class="score"><span>${cur[1]} · ${cur[2]}</span><span>Формул в выборке: ${p.length}</span></div>
+ <div class="panel card" id="cd" tabindex="0" role="button">
+   ${flip?`<div class="f">${cur[4]}</div><ul class="vars">${cur[5].map(v=>`<li>${v[0]} — ${v[1]}, ${v[2]}</li>`).join("")}</ul>`:`<div style="font-size:20px">${cur[3]}</div><small class="mute">Нажмите, чтобы увидеть формулу</small>`}
+ </div>
+ <div style="display:flex;justify-content:space-between;align-items:center">
+  <button class="btn" id="nx">Следующая</button>
+  ${flip?phetBtn:''}
+ </div>`;
+ const t=()=>{flip=!flip;cards()};$("cd").onclick=t;
+ $("nx").onclick=()=>{cur=rnd(p);flip=false;cards()};
+}
+
+function scoreBar(){return `<div class="score"><span>Верно: ${score.ok} из ${score.n}</span><button onclick="score={ok:0,n:0};saveScore();show()" style="border:0;background:none;color:var(--mute);cursor:pointer;font-size:12px">Сброс</button></div>`}
+
+function quiz(q){
+ $("view").innerHTML=`<div class="panel">${scoreBar()}<div>${q.text}</div><div class="opts" id="o">${q.opts.map(o=>`<button class="opt">${o}</button>`).join("")}</div><div id="fb"></div></div>`;
+ let done=false;
+ $("o").querySelectorAll("button").forEach(b=>{
+  b.onclick=()=>{
+   if(done)return;done=true;score.n++;
+   const good = b.innerHTML === q.ans;
+   if(good)score.ok++;
+   saveScore();
+   $("o").querySelectorAll("button").forEach(x=>{
+    if(x.innerHTML===q.ans)x.classList.add("ok");
+    else if(x===b)x.classList.add("bad");
+   });
+   $("fb").innerHTML=`<div class="msg ${good?"ok":"bad"}">${good?"Верно":"Неверно."}</div><button class="btn" id="nq">Дальше</button>`;
+   $("nq").onclick=show;
+  }
+ });
+}
+
+function quizF(){
+ const p=pool();if(p.length<2){return $("view").innerHTML='<div class="panel">Выберите больше формул: в выборке должно быть минимум две.</div>'}
+ const f=rnd(p),others=shuffle(D.filter(x=>x[4]!==f[4])).slice(0,3).map(x=>x[4]);
+ quiz({text:`Какая формула описывает: <b>${f[3].toLowerCase()}</b>?`,ans:f[4],opts:shuffle([f[4],...others])});
+}
+
+function quizU(){
+ const p=pool();if(!p.length)return;
+ const f=rnd(p),v=rnd(f[5]),all=uniq(D.flatMap(x=>x[5].map(y=>y[2])));
+ const wrong=shuffle(all.filter(u=>u!==v[2])).slice(0,3);
+ quiz({text:`В формуле <span class="f">${f[4]}</span> величина <b>${v[0]}</b> (${v[1]}). В чём она измеряется в СИ?`,ans:v[2],opts:shuffle([v[2],...wrong])});
+}
+
+function conv(){
+ const c=rnd(CONV),v=rnd(VALS);
+ let ans;
+ if(c[0]==="°C" && c[1]==="К") ans = v + 273.15;
+ else if(c[0]==="К" && c[1]==="°C") ans = v - 273.15;
+ else ans = +(v*c[2]).toPrecision(9);
+
+ $("view").innerHTML=`<div class="panel">${scoreBar()}<div>Переведите: <b>${v} ${c[0]}</b> в <b>${c[1]}</b></div>
+ <div style="margin-top:12px"><input class="ans" id="in" inputmode="decimal" autocomplete="off" aria-label="Ответ"> ${c[1]}</div><div id="fb"></div><button class="btn" id="ck">Проверить</button></div>`;
+ $("in").focus();let done=false;
+ const check=()=>{
+  if(done){conv();return}
+  const x=parseFloat($("in").value.replace(",","."));if(isNaN(x)){$("fb").innerHTML='<div class="msg bad">Введите число</div>';return}
+  done=true;score.n++;const good=Math.abs(x-ans)<=Math.abs(ans)*1e-2+1e-5;if(good)score.ok++;
+  saveScore();
+  $("fb").innerHTML=`<div class="msg ${good?"ok":"bad"}">${good?"Верно":"Неверно. Правильный ответ: "+ans+" "+c[1]}</div>`;$("ck").textContent="Дальше"};
+ $("ck").onclick=check;$("in").onkeydown=e=>{if(e.key==="Enter")check()};
+}
+
+/* ===== ЦОР-ПРОЕКТ: Баллистика (9 класс) ===== */
+const BG=9.8,brad=d=>d*Math.PI/180,bf=(x,n=2)=>(+x).toFixed(n).replace(".",",");
+function bcalc(v,a,h){const vx=v*Math.cos(brad(a)),vy=v*Math.sin(brad(a)),T=(vy+Math.sqrt(vy*vy+2*BG*h))/BG;
+ return{vx,vy,T,H:h+(vy>0?vy*vy/(2*BG):0),L:vx*T,vE:Math.hypot(vx,vy-BG*T)}}
+let bs="goal",B={v:20,a:45,h:0,t:0,run:false,last:0,d:false,mk:null,tr:null,gtr:null},bRes={};
+const BSUB=[["goal","Цели и теория"],["vid","Видео"],["sim","Лаборатория"],["calc","Калькулятор"],["ex","Задачи"],["mat","Материалы"],["chk","Проверка"],["src","Источники"]];
+function ball(){
+ $("view").innerHTML=`<div class="sub" role="tablist">${BSUB.map(([k,n])=>`<button class="pill" role="tab" aria-selected="${k===bs}" data-k="${k}">${n}</button>`).join("")}</div><div class="panel" id="bp"></div>`;
+ document.querySelectorAll(".pill[data-k]").forEach(b=>b.onclick=()=>{bs=b.dataset.k;B.run=false;ball()});
+ ({goal:bGoal,vid:bVid,sim:bSim,calc:bCalcView,ex:bEx,mat:bMat,chk:bChk,src:bSrc})[bs]();
+}
+const V0="v<sub>0</sub>",pf=s=>`<div class="f">${s}</div>`;
+function bGoal(){
+$("bp").innerHTML=`<h2 style="margin-top:0">Движение тела, брошенного под углом к горизонту</h2>
+<p class="mute">9 класс · раздел «Кинематика» · предварительно: равномерное и равноускоренное движение, свободное падение, разложение векторов.</p>
+<div class="box"><b>Оқу мақсаттары / Цели обучения.</b> После изучения раздела вы сможете:
+<ol><li><b>Объяснять</b> траекторию как параболу и раскладывать скорость на v<sub>x</sub> и v<sub>y</sub> → <i>проверка: вопросы 1, 3, 5, 6</i>.</li>
+<li><b>Вычислять</b> время полёта, максимальную высоту и дальность → <i>калькулятор, задачи, вопросы 7, 8, 9, 12</i>.</li>
+<li><b>Сравнивать и анализировать</b> траектории при разных v<sub>0</sub>, α, y<sub>0</sub>, читать график y(x) → <i>симуляция, вопросы 2, 10, 11</i>.</li></ol></div>
+<h3>1. Идея: два независимых движения</h3>
+<p>Если пренебречь сопротивлением воздуха, на тело действует только сила тяжести, поэтому ускорение постоянно: <b>a = g = 9,8 м/с²</b>, направлено вниз. Движение удобно разложить на два независимых:</p>
+<ul><li><b>по горизонтали (ось x)</b> — равномерное движение: ускорения нет, скорость v<sub>x</sub> не меняется;</li><li><b>по вертикали (ось y)</b> — равноускоренное движение с ускорением −g (вверх замедление, вниз разгон).</li></ul>
+<svg viewBox="0 0 480 210" role="img" aria-label="Разложение скорости на составляющие vx и vy" style="width:100%;max-width:560px;display:block;margin:8px auto"><defs>
+<linearGradient id="gv" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0f6b5c"/><stop offset="1" stop-color="#4fc2a8"/></linearGradient>
+<linearGradient id="gx" x1="0" x2="1"><stop offset="0" stop-color="#e8590c"/><stop offset="1" stop-color="#ffa94d"/></linearGradient>
+<linearGradient id="gy" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#3b5bdb"/><stop offset="1" stop-color="#74c0fc"/></linearGradient>
+<marker id="mv" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#4fc2a8"/></marker>
+<marker id="mx" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#ffa94d"/></marker>
+<marker id="my" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#74c0fc"/></marker></defs>
+<rect x="40" y="55" width="180" height="105" fill="url(#gv)" opacity=".08" stroke="#4fc2a8" stroke-dasharray="4 4" rx="4"/>
+<path d="M40,160 Q256,28 472,160" fill="none" stroke="#98b0a9" stroke-width="2" stroke-dasharray="5 5"/>
+<g stroke="#98b0a9" stroke-width="2" fill="none"><line x1="40" y1="160" x2="470" y2="160"/><line x1="40" y1="160" x2="40" y2="14"/></g>
+<path d="M40,160 L92,160 A52,52 0 0 0 82.6,130 Z" fill="#4fc2a8" opacity=".35"/>
+<line x1="40" y1="160" x2="220" y2="55" stroke="url(#gv)" stroke-width="5" marker-end="url(#mv)" stroke-linecap="round"/>
+<line x1="40" y1="160" x2="214" y2="160" stroke="url(#gx)" stroke-width="5" marker-end="url(#mx)" stroke-linecap="round"/>
+<line x1="220" y1="160" x2="220" y2="62" stroke="url(#gy)" stroke-width="5" marker-end="url(#my)" stroke-linecap="round"/>
+<g font-family="Segoe UI,sans-serif" font-size="15" font-weight="700"><g style="fill:var(--ink)"><text x="468" y="180" text-anchor="end">x, м</text><text x="46" y="20">y, м</text></g>
+<rect x="62" y="88" width="46" height="24" rx="8" style="fill:var(--card)" stroke="#4fc2a8"/><text x="85" y="105" text-anchor="middle" fill="#0f6b5c">v₀</text>
+<rect x="75" y="170" width="120" height="26" rx="8" style="fill:var(--card)" stroke="#ffa94d"/><text x="135" y="188" text-anchor="middle" fill="#e8590c">vₓ = v₀·cosα</text>
+<rect x="232" y="95" width="120" height="26" rx="8" style="fill:var(--card)" stroke="#74c0fc"/><text x="292" y="113" text-anchor="middle" fill="#3b5bdb">v_y = v₀·sinα</text>
+<text x="100" y="152" fill="#0f6b5c" font-size="17">α</text></g></svg>
+<p class="mute" style="text-align:center;font-size:13px">Рис. 1. Разложение начальной скорости v₀ (зелёный) на горизонтальную vₓ (оранжевый) и вертикальную v_y (синий) составляющие; α — угол броска (схема автора).</p>
+<h3>2. Основные формулы</h3>
+<table class="t"><tr><th>Величина</th><th>Формула</th><th>Условие</th></tr>
+<tr><td>Скорость по x</td><td>v<sub>x</sub> = ${V0}·cosα</td><td>всегда постоянна</td></tr>
+<tr><td>Скорость по y</td><td>v<sub>y</sub>(t) = ${V0}·sinα − g·t</td><td>ось y вверх</td></tr>
+<tr><td>Координаты</td><td>x = ${V0}·cosα·t;&nbsp; y = y<sub>0</sub> + ${V0}·sinα·t − g·t²/2</td><td>g = 9,8 м/с²</td></tr>
+<tr><td>Время полёта T</td><td>T = (${V0}sinα + √(${V0}²sin²α + 2g·y<sub>0</sub>)) / g</td><td>до падения на землю (y = 0)</td></tr>
+<tr><td>Макс. высота H</td><td>H = y<sub>0</sub> + ${V0}²·sin²α / (2g)</td><td>вершина: v<sub>y</sub> = 0</td></tr>
+<tr><td>Дальность L</td><td>L = ${V0}·cosα·T</td><td>при y<sub>0</sub> = 0: L = ${V0}²·sin2α / g</td></tr></table>
+<p class="mute" style="font-size:13px">Единицы СИ: v — м/с, t и T — с, x, y, H, L — м, α — градусы, g — м/с².</p>
+<h3>Живые формулы</h3><p class="mute">Двигайте ползунки: парабола перерисовывается, зелёный отрезок показывает величину из формулы.</p>${bMiniHtml("m1","L")}${bMiniHtml("m2","H")}<h3>3. Важные следствия</h3>
+<ul><li>В верхней точке v<sub>y</sub> = 0, но v<sub>x</sub> ≠ 0, ускорение по-прежнему равно g.</li><li>При y<sub>0</sub> = 0 дальность максимальна при α = 45°; углы α и 90° − α дают одинаковую дальность.</li><li>α = 0° — горизонтальный бросок; α = 90° — вертикальный бросок вверх.</li><li>Масса тела на траекторию не влияет (без сопротивления воздуха).</li></ul>
+<h3>Источники и авторство</h3>
+<p style="font-size:14px">Материал составлен автором ЦОР на основе школьной программы по физике (кинематика, 9 класс); формулы и числовые примеры проверены вручную. Текст подготовлен с помощью ИИ и перепроверен автором. Дополнительно: <a href="https://phet.colorado.edu/ru/simulations/projectile-motion" target="_blank" rel="noopener">PhET «Движение снаряда» (Университет Колорадо)</a>. Полный список — во вкладке «Источники».</p>`;bMiniBind()}
+
+
+
+function bCalcView(){
+ $("bp").innerHTML=`<h3 style="margin-top:0">Калькулятор баллистических параметров</h3><p class="mute">Введите начальные данные. Формулы: T = (v₀sinα + √(v₀²sin²α + 2g·y₀)) / g; H = y₀ + v₀²sin²α / (2g); L = v₀cosα·T; g = 9,8 м/с².</p>
+ <div class="grid2"><div>v₀, м/с (больше 0)<br><input class="ans" id="kv" inputmode="decimal" value="20"></div><div>α, ° (от 0 до 90)<br><input class="ans" id="ka" inputmode="decimal" value="45"></div><div>y₀, м (не меньше 0)<br><input class="ans" id="kh" inputmode="decimal" value="0"></div></div>
+ <button class="btn" id="kb">Рассчитать</button><div id="ko"></div>`;
+ const go=()=>{const g=id=>{const s=$(id).value.trim().replace(",",".");return s===""?NaN:Number(s)},v=g("kv"),a=g("ka"),h=g("kh"),er=[];
+  if(isNaN(v)||isNaN(a)||isNaN(h))er.push("Заполните все поля числами (например, 12,5).");
+  else{if(v<=0)er.push("Скорость v₀ должна быть положительной (не 0 и не отрицательной).");if(v>1000)er.push("v₀ слишком велика для школьной модели (до 1000 м/с).");
+   if(a<0||a>90)er.push("Угол α должен быть в пределах от 0° до 90°.");if(h<0)er.push("Высота y₀ не может быть отрицательной (земля — это y = 0).");if(h>10000)er.push("y₀ не более 10 000 м.")}
+  if(er.length){$("ko").innerHTML=`<div class="msg bad">⚠ ${er.join("<br>⚠ ")}</div>`;return}
+  const r=bcalc(v,a,h);$("ko").innerHTML=`<div class="ro"><div>Время полёта T<b>${bf(r.T)} с</b></div><div>Макс. высота H<b>${bf(r.H)} м</b></div><div>Дальность L<b>${bf(r.L)} м</b></div><div>v<sub>x</sub><b>${bf(r.vx)} м/с</b></div><div>v<sub>y0</sub><b>${bf(r.vy)} м/с</b></div><div>Скорость при падении<b>${bf(r.vE)} м/с</b></div></div>
+  <div class="box">Проверка: при y₀ = 0 должно выполняться L = v₀²sin2α/g = ${bf(v*v*Math.sin(brad(2*a))/BG)} м (для вашего угла при y₀ = 0).</div>`};
+ $("kb").onclick=go;["kv","ka","kh"].forEach(i=>$(i).onkeydown=e=>{if(e.key==="Enter")go()});go()}
+
+const BT=[{q:"v₀ = 10 м/с, α = 90° (вертикально вверх), y₀ = 0. Найдите максимальную высоту H (м).",a:5.1,u:"м",s:"H = v₀²/(2g) = 100/19,6 ≈ 5,1 м."},
+{q:"v₀ = 25 м/с, α = 45°, y₀ = 0. Найдите дальность L (м).",a:63.8,u:"м",s:"L = v₀²·sin90°/g = 625/9,8 ≈ 63,8 м."},
+{q:"v₀ = 12 м/с, α = 30°, y₀ = 15 м. Найдите дальность L (м).",a:25.6,u:"м",s:"v<sub>y</sub> = 6, v<sub>x</sub> ≈ 10,39 м/с; T = (6+√330)/9,8 ≈ 2,47 с; L = 10,39·2,47 ≈ 25,6 м."}];
+function bEx(){
+ const d=a=>`<ul>${a.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+ $("bp").innerHTML=`<h3 style="margin-top:0">Разобранные задачи</h3><div class="sol">
+ <div class="qc"><b>Задача 1.</b> Мяч брошен с земли со скоростью 20 м/с под углом 30° к горизонту. Найдите T, H и L.
+ <p><b>Алгоритм:</b></p><ol><li>Разложить скорость: v<sub>x</sub> = 20·cos30° ≈ 17,32 м/с; v<sub>y</sub> = 20·sin30° = 10 м/с.</li><li>Время полёта (y₀ = 0): T = 2v<sub>y</sub>/g = 20/9,8 ≈ 2,04 с.</li><li>Высота: H = v<sub>y</sub>²/(2g) = 100/19,6 ≈ 5,10 м.</li><li>Дальность: L = v<sub>x</sub>·T ≈ 17,32·2,04 ≈ 35,3 м.</li></ol>
+ <p><b>Проверка:</b> L = v₀²sin2α/g = 400·0,866/9,8 ≈ 35,3 м ✓; единицы: м/с·с = м ✓. <b>Ответ:</b> T ≈ 2,04 с; H ≈ 5,10 м; L ≈ 35,3 м.</p>
+ <b>Дескрипторы (5 б.):</b>${d(["раскладывает скорость на v<sub>x</sub>, v<sub>y</sub> — 1","записывает формулу времени полёта — 1","вычисляет H — 1","вычисляет L — 1","указывает единицы СИ и проверяет ответ — 1"])}</div>
+ <div class="qc"><b>Задача 2.</b> Камень брошен горизонтально со скоростью 15 м/с с высоты 20 м. Найдите время падения, дальность и скорость при падении.
+ <p><b>Алгоритм:</b> α = 0°, v<sub>y0</sub> = 0, v<sub>x</sub> = 15 м/с.</p><ol><li>Из y = y₀ − gt²/2 = 0: T = √(2y₀/g) = √(40/9,8) ≈ 2,02 с.</li><li>L = v<sub>x</sub>·T ≈ 15·2,02 ≈ 30,3 м.</li><li>v<sub>y</sub> = gT ≈ 19,8 м/с; v = √(15² + 19,8²) ≈ 24,8 м/с.</li></ol>
+ <p><b>Проверка:</b> тот же T даёт калькулятор при α = 0°, v₀ = 15, y₀ = 20 ✓. <b>Ответ:</b> T ≈ 2,02 с; L ≈ 30,3 м; v ≈ 24,8 м/с.</p>
+ <b>Дескрипторы (4 б.):</b>${d(["определяет, что v<sub>y0</sub> = 0 — 1","находит T из вертикального движения — 1","находит L — 1","находит модуль конечной скорости через теорему Пифагора — 1"])}</div></div>
+ <h3>Задачи для самостоятельного решения</h3>${BT.map((t,i)=>`<div class="qc"><b>Задача ${i+3}</b> <small class="mute">(${["лёгкая","средняя","сложная"][i]})</small><br>${t.q}<br><input class="ans" id="sa${i}" inputmode="decimal" style="margin-top:8px"> ${t.u} <button class="btn btn-sm" id="sb${i}">Проверить</button><div id="sf${i}"></div></div>`).join("")}`;
+ BT.forEach((t,i)=>$("sb"+i).onclick=()=>{const x=parseFloat($("sa"+i).value.replace(",","."));
+  $("sf"+i).innerHTML=isNaN(x)?'<div class="msg bad">Введите число</div>':Math.abs(x-t.a)<=.02*t.a+.005?`<div class="msg ok">Верно! ${t.s}</div>`:`<div class="msg bad">Пока неверно. Подсказка: ${t.s}</div>`})}
+
+const BQ=[
+{t:"single",q:"Какова форма траектории тела, брошенного под углом к горизонту (без сопротивления воздуха)?",o:["Прямая","Парабола","Окружность","Гипербола"],a:1,e:"Из x = v₀cosα·t и y = … − gt²/2 следует, что y — квадратичная функция от x, то есть парабола.",pts:1},
+{t:"single",q:"При y₀ = 0 и одинаковой v₀ дальность наибольшая при угле:",o:["30°","45°","60°","90°"],a:1,e:"L = v₀²sin2α/g максимальна при sin2α = 1, то есть α = 45°.",pts:1},
+{t:"multi",q:"Что верно для верхней точки траектории? (несколько ответов)",o:["v<sub>y</sub> = 0","v<sub>x</sub> = 0","Ускорение равно g и направлено вниз","Ускорение равно нулю"],a:[0,2],e:"В вершине меняется знак v<sub>y</sub>, но v<sub>x</sub> остаётся прежней, а ускорение всегда g.",pts:2},
+{t:"multi",q:"От чего зависит время полёта при y₀ = 0? (несколько ответов)",o:["Начальная скорость v₀","Угол α","Масса тела","Ускорение свободного падения g"],a:[0,1,3],e:"T = 2v₀sinα/g; масса в формулу не входит (нет сопротивления воздуха).",pts:2},
+{t:"tf",q:"Верно ли: горизонтальная составляющая скорости в полёте (без сопротивления воздуха) не меняется?",a:true,e:"По горизонтали сил нет, поэтому v<sub>x</sub> = const.",pts:1},
+{t:"match",q:"Сопоставьте величину и формулу.",l:[["Горизонтальная скорость v<sub>x</sub>","v₀cosα"],["Вертикальная скорость v<sub>y</sub>(t)","v₀sinα − gt"],["Макс. высота при y₀ = 0","v₀²sin²α/(2g)"],["Дальность при y₀ = 0","v₀²sin2α/g"]],e:"Верно: v<sub>x</sub> = v₀cosα; v<sub>y</sub> = v₀sinα − gt; H = v₀²sin²α/(2g); L = v₀²sin2α/g.",pts:2},
+{t:"num",q:"v₀ = 30 м/с, α = 30°, y₀ = 0. Найдите время полёта T (с).",a:3.06,u:"с",e:"T = 2v₀sinα/g = 2·30·0,5/9,8 ≈ 3,06 с.",pts:1},
+{t:"num",q:"v₀ = 20 м/с, α = 60°, y₀ = 0. Найдите максимальную высоту H (м).",a:15.3,u:"м",e:"H = v₀²sin²α/(2g) = 400·0,75/19,6 ≈ 15,3 м.",pts:1},
+{t:"open",q:"Открытая задача: тело брошено с земли со скоростью 20 м/с под углом 30°. Найдите дальность. Запишите решение: закон, формулы, вычисления, ответ с единицами.",sol:"v<sub>y</sub> = 20·sin30° = 10 м/с; T = 2v<sub>y</sub>/g ≈ 2,04 с; v<sub>x</sub> = 20·cos30° ≈ 17,32 м/с; L = v<sub>x</sub>T ≈ 35,3 м. Ответ: ≈ 35 м.",desc:["Разложил скорость на v<sub>x</sub> и v<sub>y</sub>","Верно записал формулу времени полёта","Верно подставил числа и получил T ≈ 2,04 с","Верно вычислил L ≈ 35 м","Указал единицы СИ и записал ответ"],pts:5},
+{t:"single",q:"По графику y(x) определите дальность полёта.",svg:`<svg viewBox="0 0 300 150" style="width:100%;max-width:340px;display:block;margin:8px auto" role="img" aria-label="График y(x): парабола от 0 до 40 м, вершина 10 м"><g stroke="currentColor" fill="none" style="color:var(--ink)"><line x1="20" y1="125" x2="285" y2="125"/><line x1="20" y1="125" x2="20" y2="10"/><path d="M20,125 Q140,-35 260,125" stroke="#0f6b5c" stroke-width="3"/><line x1="140" y1="125" x2="140" y2="45" stroke-dasharray="3 3"/></g><g fill="currentColor" font-size="11" style="color:var(--ink)"><text x="16" y="140">0</text><text x="132" y="140">20</text><text x="252" y="140">40</text><text x="268" y="141">x, м</text><text x="26" y="14">y, м</text><text x="4" y="48">10</text></g></svg>`,o:["20 м","40 м","10 м","80 м"],a:1,e:"Тело падает на землю (y = 0) в точке x = 40 м; 10 м — это максимальная высота.",pts:1},
+{t:"single",q:"При одинаковой v₀ и y₀ = 0 дальность при углах 30° и 60° будет:",o:["Больше при 30°","Больше при 60°","Одинаковой","Нулевой"],a:2,e:"sin(2·30°) = sin(2·60°) = sin60° = sin120°, поэтому L одинакова (углы дополняют друг друга до 90°).",pts:1},
+{t:"num",q:"Тело брошено горизонтально с высоты 45 м. Найдите время падения (с).",a:3.03,u:"с",e:"T = √(2h/g) = √(90/9,8) ≈ 3,03 с.",pts:1}];
+const BMAX=BQ.reduce((s,q)=>s+q.pts,0);
+function bChk(){
+ bRes={};
+ $("bp").innerHTML=`<h3 style="margin-top:0">Проверочные задания (12 заданий, ${BMAX} баллов)</h3><p class="mute">Типы: один/несколько ответов, верно-неверно, соответствие, числовой ответ, график, открытая задача. После каждой проверки появляется пояснение. Критерии: ≥ 85 % — «отлично», 65–84 % — «хорошо», 40–64 % — «удовлетворительно», ниже 40 % — повторите теорию.</p>
+ ${BQ.map((q,i)=>{let b="";
+  if(q.t==="single"||q.t==="multi")b=q.o.map((o,j)=>`<label><input type="${q.t==="single"?"radio":"checkbox"}" name="r${i}" value="${j}"> ${o}</label>`).join("");
+  if(q.t==="tf")b=`<label><input type="radio" name="r${i}" value="1"> Верно</label><label><input type="radio" name="r${i}" value="0"> Неверно</label>`;
+  if(q.t==="match"){const R=shuffle(q.l.map(p=>p[1]));b=q.l.map((p,j)=>`<div style="margin-top:6px">${p[0]}<select id="m${i}_${j}"><option value="">— выберите —</option>${R.map(r=>`<option>${r}</option>`).join("")}</select></div>`).join("")}
+  if(q.t==="num")b=`<input class="ans" id="n${i}" inputmode="decimal"> ${q.u}`;
+  if(q.t==="open")b=`<textarea id="t${i}" rows="4" placeholder="Запишите решение..."></textarea><div class="mute" style="margin-top:6px">Самооценка по дескрипторам (отметьте выполненное после просмотра образца):</div>${q.desc.map((d,j)=>`<label><input type="checkbox" id="d${i}_${j}"> ${d} — 1 б.</label>`).join("")}`;
+  return `<div class="qc"><b>${i+1}. ${q.q}</b> <small class="mute">(${q.pts} б.)</small>${q.svg||""}${b}<button class="btn btn-sm" id="k${i}">Проверить</button><div id="f${i}"></div></div>`}).join("")}
+ <div class="panel" id="bsum" style="font-weight:bold">Результат: 0 из ${BMAX}</div><div class="cta"><h3 style="margin-top:0">📝 Итоговая проверка в Google Forms</h3><div id="fm"></div></div>`;
+ BQ.forEach((q,i)=>$("k"+i).onclick=()=>bCheck(i));bFrame("forms","fm","Итоговая форма (не менее 5 вопросов, ключ и критерии оценивания) создаётся в Google Forms. Вставьте ссылку на неё ниже — появится кнопка перехода и встроенная форма.")}
+function bCheck(i){const q=BQ[i];if(i in bRes)return;let f=0,sel=[...document.querySelectorAll(`[name=r${i}]:checked`)].map(e=>+e.value);
+ if(q.t==="single")f=sel[0]===q.a?1:0;
+ if(q.t==="multi"){const ok=sel.filter(v=>q.a.includes(v)).length,bad=sel.length-ok;f=Math.max(0,(ok-bad)/q.a.length)}
+ if(q.t==="tf"){if(!sel.length)return $("f"+i).innerHTML='<div class="msg bad">Выберите ответ</div>';f=(sel[0]===1)===q.a?1:0}
+ if(q.t==="num"){const x=parseFloat($("n"+i).value.replace(",","."));if(isNaN(x))return $("f"+i).innerHTML='<div class="msg bad">Введите число</div>';f=Math.abs(x-q.a)<=.02*q.a+.005?1:0}
+ if(q.t==="match"){const n=q.l.filter((p,j)=>$(`m${i}_${j}`).value===p[1]).length;f=n/q.l.length}
+ if(q.t==="open"){f=q.desc.filter((d,j)=>$(`d${i}_${j}`).checked).length/q.desc.length}
+ const pts=+(q.pts*f).toFixed(2);bRes[i]=pts;
+ if(q.t!=="open"){score.n++;if(f===1)score.ok++;saveScore()}
+ $("f"+i).innerHTML=`<div class="msg ${f===1?"ok":"bad"}">${f===1?"Верно!":f>0?"Частично верно.":"Неверно."} Баллы: ${bf(pts,1)} из ${q.pts}</div><div class="box">${q.e||""}${q.sol?"<b>Образец:</b> "+q.sol:""}</div>`;
+ const sum=Object.values(bRes).reduce((a,b)=>a+b,0),p=Math.round(100*sum/BMAX),n=Object.keys(bRes).length;
+ $("bsum").innerHTML=`Результат: ${bf(sum,1)} из ${BMAX} (${p} %) · выполнено ${n} из ${BQ.length}`+(n===BQ.length?` · Оценка: ${p>=85?"отлично":p>=65?"хорошо":p>=40?"удовлетворительно":"повторите теорию"}`:"");
+ if(n===BQ.length)try{localStorage.setItem("phys_ball_best",JSON.stringify({sum,p}))}catch(e){}}
+
+const BK=.01,BURL={video:"",slides:"",forms:""};
+function btraj(v,a,h,d){
+ if(!d){const r=bcalc(v,a,h),P=[];for(let k=0;k<=240;k++){const t=r.T*k/240;P.push({t,x:r.vx*t,y:h+r.vy*t-BG*t*t/2,vx:r.vx,vy:r.vy-BG*t})}return{P,T:r.T,H:r.H,L:r.L}}
+ let x=0,y=h,vx=v*Math.cos(brad(a)),vy=v*Math.sin(brad(a)),t=0,dt=.002,H=h,i=0;const P=[{t,x,y,vx,vy}];
+ while(i++<1e6){const s=Math.hypot(vx,vy);vx-=BK*s*vx*dt;vy+=(-BG-BK*s*vy)*dt;const nx=x+vx*dt,ny=y+vy*dt;
+  if(ny<0){const f=y/(y-ny||1);t+=dt*f;x+=(nx-x)*f;P.push({t,x,y:0,vx,vy});break}
+  x=nx;y=ny;t+=dt;H=Math.max(H,y);if(i%20===0)P.push({t,x,y,vx,vy})}
+ return{P,T:t,H,L:x}}
+function bat(tr,t){const P=tr.P;let i=1;while(i<P.length-1&&P[i].t<t)i++;const p=P[i-1],q=P[i],f=q.t>p.t?Math.min(1,Math.max(0,(t-p.t)/(q.t-p.t))):0,m=k=>p[k]+(q[k]-p[k])*f;return{t,x:m("x"),y:m("y"),vx:m("vx"),vy:m("vy")}}
+function bSim(){
+ const sl=(id,l,min,max,v,u)=>`<label for="${id}"><span>${l}</span><b id="${id}o">${v} ${u}</b></label><input type="range" id="${id}" min="${min}" max="${max}" step="1" value="${v}">`;
+ $("bp").innerHTML=`<h3 style="margin-top:0">Виртуальная лаборатория: бросок под углом</h3><p class="mute">Задайте параметры, нажмите «Запуск», затем <b>кликните по параболе</b> — маркер покажет t, x, y и скорость в этой точке. g = 9,8 м/с².</p>
+ <div class="ctl grid2"><div>${sl("sv","Скорость v₀",1,60,B.v,"м/с")}${sl("sa","Угол α",0,90,B.a,"°")}${sl("sh","Высота y₀",0,50,B.h,"м")}
+ <label style="justify-content:flex-start;gap:8px;align-items:center"><input type="checkbox" id="sd" ${B.d?"checked":""}> Учитывать сопротивление воздуха (F ∝ v², k = 0,01 м⁻¹)</label></div>
+ <div><button class="btn" id="bgo">▶ Запуск</button> <button class="btn" id="bpa">⏸ Пауза</button> <button class="btn" id="brs">↺ Сброс</button><br><button class="btn btn-sm" id="bgh">📌 Зафиксировать траекторию</button> <button class="btn btn-sm" id="bgc">Убрать</button></div></div>
+ <canvas class="cv" id="bc" style="cursor:crosshair;touch-action:manipulation" role="img" aria-label="Траектория тела в координатах x, y"></canvas><div class="ro" id="br"></div>
+ <div class="box" id="bm">📏 Маркер: кликните по траектории, чтобы считать координаты.</div>
+ <div class="box"><b>Исследование.</b> 1) Найдите угол наибольшей дальности при y₀ = 0 без сопротивления воздуха и с ним. 2) Зафиксируйте траекторию без сопротивления, включите сопротивление и сравните H и L. 3) Сделайте вывод: какая из величин уменьшилась сильнее и почему?</div>`;
+ const rd=()=>{B.v=+$("sv").value;B.a=+$("sa").value;B.h=+$("sh").value;B.d=$("sd").checked;$("svo").textContent=B.v+" м/с";$("sao").textContent=B.a+"°";$("sho").textContent=B.h+" м";B.run=false;B.t=0;B.mk=null;B.tr=btraj(B.v,B.a,B.h,B.d);bDraw()};
+ ["sv","sa","sh","sd"].forEach(i=>$(i).oninput=rd);
+ $("bgo").onclick=()=>{if(B.t>=B.tr.T)B.t=0;if(!B.run){B.run=true;B.last=performance.now();requestAnimationFrame(btick)}};
+ $("bpa").onclick=()=>B.run=false;$("brs").onclick=()=>{B.run=false;B.t=0;B.mk=null;bDraw()};
+ $("bgh").onclick=()=>{B.gtr=B.tr;B.gl=B.d?"с сопротивлением":"без сопротивления";bDraw()};$("bgc").onclick=()=>{B.gtr=null;bDraw()};
+ $("bc").onclick=e=>{const R=$("bc").getBoundingClientRect(),cx=e.clientX-R.left,cy=e.clientY-R.top,G=B.G;let bi=-1,bd=24;
+  B.tr.P.forEach((p,i)=>{const d=Math.hypot(G.ox+p.x*G.s-cx,G.oy-p.y*G.s-cy);if(d<bd){bd=d;bi=i}});B.mk=bi<0?null:B.tr.P[bi].t;bDraw()};
+ B.tr=btraj(B.v,B.a,B.h,B.d);bDraw();
+}
+function btick(ts){if(!$("bc")){B.run=false;return}
+ if(B.run){const dt=Math.min((ts-B.last)/1000,.05);B.last=ts;B.t+=dt;if(B.t>=B.tr.T){B.t=B.tr.T;B.run=false}}
+ bDraw();if(B.run)requestAnimationFrame(btick)}
+function bDraw(){const c=$("bc");if(!c||!B.tr)return;
+ const dpr=window.devicePixelRatio||1,W=c.clientWidth,Hh=Math.round(W*.62);
+ if(c.width!==Math.round(W*dpr)||c.height!==Math.round(Hh*dpr)){c.width=Math.round(W*dpr);c.height=Math.round(Hh*dpr);c.style.height=Hh+"px"}
+ const x=c.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,W,Hh);
+ const cs=getComputedStyle(document.documentElement),C=n=>cs.getPropertyValue(n).trim(),r=B.tr,g=B.gtr;
+ const xm=Math.max(r.L,g?g.L:0,5)*1.08,ym=Math.max(r.H,g?g.H:0,5)*1.15,ox=46,oy=Hh-30,s=Math.min((W-ox-14)/xm,(oy-16)/ym);B.G={ox,oy,s};
+ const nice=m=>{const q=m/5,p=10**Math.floor(Math.log10(q)),k=q/p;return(k<1.5?1:k<3.5?2:k<7.5?5:10)*p};
+ const sx=nice((W-ox-14)/s),sy=nice((oy-16)/s);
+ x.font="11px sans-serif";x.fillStyle=C("--mute");x.strokeStyle=C("--line");x.lineWidth=1;
+ for(let v=0;v*s<=W-ox-14;v+=sx){x.beginPath();x.moveTo(ox+v*s,oy);x.lineTo(ox+v*s,16);x.stroke();x.textAlign="center";x.fillText(+v.toFixed(2),ox+v*s,oy+14)}
+ for(let v=0;v*s<=oy-16;v+=sy){x.beginPath();x.moveTo(ox,oy-v*s);x.lineTo(W-14,oy-v*s);x.stroke();x.textAlign="right";x.fillText(+v.toFixed(2),ox-5,oy-v*s+4)}
+ x.strokeStyle=C("--ink");x.lineWidth=2;x.beginPath();x.moveTo(ox,12);x.lineTo(ox,oy);x.lineTo(W-8,oy);x.stroke();
+ x.fillStyle=C("--ink");x.textAlign="right";x.fillText("x, м",W-10,oy+26);x.textAlign="left";x.fillText("y, м",4,12);
+ const path=(tr,tm,col,dash)=>{x.beginPath();x.setLineDash(dash);x.strokeStyle=col;x.lineWidth=2.5;let f=true;
+  for(const p of tr.P){if(p.t>tm)break;const X=ox+p.x*s,Y=oy-p.y*s;f?x.moveTo(X,Y):x.lineTo(X,Y);f=false}
+  const e=bat(tr,tm);x.lineTo(ox+e.x*s,oy-e.y*s);x.stroke();x.setLineDash([])};
+ if(g){path(g,g.T,C("--bad"),[6,5]);x.fillStyle=C("--bad");x.textAlign="left";x.fillText("— — зафиксировано ("+B.gl+")",ox+8,26)}
+ path(r,r.T,C("--mute"),[3,4]);const t=Math.min(B.t,r.T);path(r,t,C("--acc"),[]);
+ const p=bat(r,t),px=ox+p.x*s,py=oy-p.y*s;
+ x.strokeStyle=C("--bad");x.lineWidth=2;x.beginPath();x.moveTo(px,py);x.lineTo(px+p.vx*s*.18,py-p.vy*s*.18);x.stroke();
+ x.fillStyle=C("--acc");x.beginPath();x.arc(px,py,6,0,7);x.fill();
+ if(B.mk!==null){const m=bat(r,B.mk),mx=ox+m.x*s,my=oy-m.y*s;x.strokeStyle=C("--ink");x.lineWidth=1;x.setLineDash([4,3]);x.beginPath();x.moveTo(mx,oy);x.lineTo(mx,my);x.lineTo(ox,my);x.stroke();x.setLineDash([]);
+  x.fillStyle=C("--card");x.strokeStyle=C("--ink");x.beginPath();x.arc(mx,my,6,0,7);x.fill();x.stroke();
+  $("bm").innerHTML=`📏 <b>Маркер:</b> t = ${bf(m.t)} с; x = ${bf(m.x)} м; y = ${bf(m.y)} м; v = ${bf(Math.hypot(m.vx,m.vy))} м/с`}
+ $("br").innerHTML=[["Время полёта T",bf(r.T)+" с"],["Макс. высота H",bf(r.H)+" м"],["Дальность L",bf(r.L)+" м"],["Время t",bf(t)+" с"],["Координаты (x; y)","("+bf(p.x,1)+"; "+bf(p.y,1)+") м"],["Скорость v",bf(Math.hypot(p.vx,p.vy),1)+" м/с"]].map(a=>`<div>${a[0]}<b>${a[1]}</b></div>`).join("")}
+function bMiniHtml(id,k){return `<div class="qc"><b>${k==="L"?"Дальность: L = v₀²·sin2α / g":"Высота: H = v₀²·sin²α / (2g)"}</b><div class="grid2"><label>v₀ = <b id="${id}vo">20</b> м/с<input type="range" id="${id}v" min="5" max="40" value="20" style="width:100%;accent-color:var(--acc)"></label><label>α = <b id="${id}ao">45</b>°<input type="range" id="${id}a" min="5" max="85" value="45" style="width:100%;accent-color:var(--acc)"></label></div><canvas class="cv" id="${id}c"></canvas><div class="mute" id="${id}t" style="font-size:14px"></div></div>`}
+function bMini(id,k){const c=$(id+"c");if(!c)return;const v=+$(id+"v").value,a=+$(id+"a").value;$(id+"vo").textContent=v;$(id+"ao").textContent=a;
+ const dpr=window.devicePixelRatio||1,W=c.clientWidth,s=(W-24)/170,Hh=Math.round(85*s+26);c.width=Math.round(W*dpr);c.height=Math.round(Hh*dpr);c.style.height=Hh+"px";
+ const x=c.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);const cs=getComputedStyle(document.documentElement),C=n=>cs.getPropertyValue(n).trim(),ox=12,oy=Hh-14,r=bcalc(v,a,0);
+ x.strokeStyle=C("--ink");x.lineWidth=1.5;x.beginPath();x.moveTo(ox,oy);x.lineTo(W-6,oy);x.stroke();
+ x.lineWidth=2;x.beginPath();for(let i=0;i<=60;i++){const t=r.T*i/60,X=ox+r.vx*t*s,Y=oy-(r.vy*t-BG*t*t/2)*s;i?x.lineTo(X,Y):x.moveTo(X,Y)}x.stroke();
+ x.strokeStyle=C("--acc");x.fillStyle=C("--acc");x.lineWidth=5;x.beginPath();const px=ox+r.vx*(r.vy/BG)*s;
+ if(k==="L"){x.moveTo(ox,oy);x.lineTo(ox+r.L*s,oy)}else{x.moveTo(px,oy);x.lineTo(px,oy-r.H*s)}x.stroke();
+ x.font="bold 13px sans-serif";x.textAlign="left";x.fillText(k==="L"?"L = "+bf(r.L,1)+" м":"H = "+bf(r.H,1)+" м",k==="L"?Math.min(ox+r.L*s/2-30,W-90):Math.min(px+8,W-90),k==="L"?oy-10:oy-r.H*s/2);
+ $(id+"t").textContent=k==="L"?`При α = ${a}° и 90° − α = ${90-a}° дальность одинакова; наибольшая — при 45°.`:`Высота растёт с квадратом sinα: при α = 90° она максимальна, а дальность равна 0.`}
+function bMiniBind(){[["m1","L"],["m2","H"]].forEach(([i,k])=>{if(!$(i+"v"))return;["v","a"].forEach(z=>$(i+z).oninput=()=>bMini(i,k));bMini(i,k)})}
+window.addEventListener("resize",()=>{bMiniBind();bDraw()});
+
+const burl=k=>{try{return localStorage.getItem("phys_url_"+k)||BURL[k]}catch(e){return BURL[k]}};
+function bEmb(k,u){if(k==="video"){const m=u.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);return m?"https://www.youtube.com/embed/"+m[1]:u}
+ if(k==="slides")return u.replace(/\/(edit|pub|preview)[^]*$/,"/embed");
+ return u+(u.includes("embedded=true")?"":(u.includes("?")?"&":"?")+"embedded=true")}
+function bFrame(k,id,hint){const u=burl(k),el=$(id);if(!el)return;
+ el.innerHTML=(u?`<div class="phet-container"><iframe src="${bEmb(k,u)}" allowfullscreen loading="lazy" title="${k}"></iframe></div><a class="btn" href="${u}" target="_blank" rel="noopener">${k==="forms"?"📝 Открыть итоговую Google Forms":"Открыть в новой вкладке"} ↗</a>`:`<div class="box">${hint}</div>`)+`<div class="mini-row"><input class="ans" id="${id}i" placeholder="Вставьте ссылку на материал…"><button class="btn btn-sm" id="${id}b">Показать</button></div>`;
+ $(id+"b").onclick=()=>{try{localStorage.setItem("phys_url_"+k,$(id+"i").value.trim())}catch(e){}bFrame(k,id,hint)}}
+function bVid(){$("bp").innerHTML=`<h3 style="margin-top:0">Учебное видео</h3><div class="box"><b>🎯 Цель просмотра:</b> увидеть, как движение под углом раскладывается на равномерное по x и равноускоренное по y, и запомнить, что происходит со скоростью в верхней точке.</div><div id="vf"></div>
+ <div class="qc"><b>Вопрос после просмотра.</b> Почему в верхней точке траектории скорость тела не равна нулю, хотя v<sub>y</sub> = 0? Ответьте своими словами.<textarea id="vt" rows="3" placeholder="Ваш ответ…"></textarea><button class="btn btn-sm" id="vk">Сверить с образцом</button><div id="vr"></div></div>`;
+ bFrame("video","vf","Видео ещё не добавлено: найдите урок по теме «Движение тела, брошенного под углом к горизонту», скопируйте ссылку YouTube и вставьте её ниже — плеер появится автоматически.");
+ $("vk").onclick=()=>$("vr").innerHTML=`<div class="box"><b>Образец:</b> в верхней точке v<sub>y</sub> = 0, но горизонтальная составляющая v<sub>x</sub> = v₀cosα сохраняется (по горизонтали сил нет), поэтому v = v<sub>x</sub> ≠ 0. Самопроверка: ✔ упомянута v<sub>x</sub> = const; ✔ указано, что обнуляется только v<sub>y</sub>.</div>`}
+function bMat(){const st=[["1. Разложить v₀","vₓ = v₀cosα;  v_y = v₀sinα"],["2. Время полёта T","T = (v_y + √(v_y² + 2g·y₀)) / g"],["3. Высота H","H = y₀ + v_y² / (2g)"],["4. Дальность L","L = vₓ · T"],["5. Проверить","единицы СИ, знак, смысл ответа"]];
+ $("bp").innerHTML=`<h3 style="margin-top:0">Презентация</h3><p class="mute">Опубликуйте презентацию в Google Slides (Файл → Поделиться → Опубликовать в Интернете) и вставьте ссылку.</p><div id="sf"></div>
+ <h3>Инфографика: алгоритм решения задачи</h3><svg viewBox="0 0 340 440" role="img" aria-label="Алгоритм решения задач на бросок под углом" style="width:100%;max-width:460px;display:block;margin:0 auto"><defs><linearGradient id="ig" x1="0" x2="1"><stop offset="0" stop-color="#0f6b5c"/><stop offset="1" stop-color="#5b7cfa"/></linearGradient></defs>
+ ${st.map((s,i)=>`<g transform="translate(10,${i*86})"><rect width="320" height="68" rx="14" fill="url(#ig)"/><text x="16" y="28" fill="#fff" font-size="17" font-weight="700" font-family="Segoe UI,sans-serif">${s[0]}</text><text x="16" y="52" fill="#fff" font-size="15" font-family="Cambria Math,Cambria,serif">${s[1]}</text></g>${i<4?`<path d="M170,${i*86+70} v14 m-6,-6 l6,6 l6,-6" stroke="var(--ink)" stroke-width="2.5" fill="none" style="color:var(--ink)"/>`:""}`).join("")}</svg>`;
+ bFrame("slides","sf","Презентация ещё не добавлена. Вставьте ссылку на Google Slides ниже.")}
+function bSrc(){$("bp").innerHTML=`<h3 style="margin-top:0">Источники и авторство</h3><ol class="sol"><li>Перышкин А. В., Гутник Е. М. Физика. 9 класс: учебник. — М.: Дрофа (выходные данные уточните по используемому изданию).</li>
+ <li>PhET Interactive Simulations, University of Colorado Boulder. <a href="https://phet.colorado.edu/ru/simulations/projectile-motion" target="_blank" rel="noopener">Движение снаряда</a> (лицензия CC BY).</li>
+ <li>PhET Interactive Simulations. <a href="https://phet.colorado.edu/ru/simulations/circuit-construction-kit-dc" target="_blank" rel="noopener">Конструктор электрических цепей (DC)</a>.</li>
+ <li>MDN Web Docs. <a href="https://developer.mozilla.org/ru/docs/Web/API/Canvas_API" target="_blank" rel="noopener">Canvas API</a> — технология отрисовки лаборатории.</li></ol>
+ <div class="box"><b>Использование ИИ.</b> Проектирование структуры, тексты заданий и код ресурса подготовлены с помощью ИИ-ассистента (Claude, Anthropic). Автор проверил формулы, числовые примеры и расчёты вручную и несёт ответственность за содержание. Модель сопротивления воздуха (F ∝ v², k = 0,01 м⁻¹) упрощённая, учебная.</div>
+ <p class="mute" style="font-size:13px">Видео, презентация и итоговая Google Forms подключаются по ссылкам автора (вкладки «Видео», «Материалы», «Проверка»).</p>`}
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem("phys_theme",t)}catch(e){}$("th").textContent=t==="dark"?"☀️ Светлая тема":"🌙 Тёмная тема";bDraw();bMiniBind()}
+let th0=null;try{th0=localStorage.getItem("phys_theme")}catch(e){}
+setTheme(th0||(window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"));
+$("th").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+
+renderTabs();renderFilters();show();
+</script>
+</body>
+</html>
